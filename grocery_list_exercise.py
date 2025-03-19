@@ -19,7 +19,7 @@ def list_organizer():
     for groceries in grocery_list:
         print(f"- {groceries}")  # 4
     grocery_string = " ".join(grocery_list)
-    # remove space character. I accidentally type a space before Broccoli
+    # Remove whitespace character. I accidentally typed a space before Broccoli
     grocery_string.strip()
     comparable_list = grocery_string.lower().split(" ")
     print(grocery_string.lower().split(" "))
@@ -34,8 +34,13 @@ def list_organizer():
             continue
         elif new_item.lower() in comparable_list:
             print(
-                f"{new_item} is already in your list. You need to buy something else?!")  # 7
-            continue
+                # 7
+                f"{new_item} is already in your list. Do you want to remove from the list?: Yes/No ")
+            answer = input().lower().strip()
+            if answer == "yes":
+                comparable_list.remove(new_item)
+                print(comparable_list)
+                continue
         elif new_item.lower() == "q":
             print("Bye")
             break

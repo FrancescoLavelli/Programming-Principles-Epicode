@@ -38,5 +38,12 @@ print(type(name_list), name_list)
 print(sorted(name))
 
 ingredients = ["butter", "jelly", "bread"]
-sandwich = "&".join(ingredients)
-print(sandwich)
+sandwich = " & ".join(ingredients)
+print(sandwich)  # butter & jelly & bread
+# The method get me back a list, I pass the separator to split the elements in the string
+print(sandwich.split(" & "))
+
+# ** Tuple **
+# useful for a group of elements that does not have sense to modify like days of the week
+
+(a, b, c) = (5, 10, 7)  # tuple unpacking, I can omit ()
