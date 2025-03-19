@@ -22,7 +22,7 @@ A collection of Python exercises from my Epicode journey!
 
 ```bash
 # Clone this repository (if it ever leaves your machine)
-git clone https://example.com/your-repo-here.git
+git clone https://github.com/FrancescoLavelli/Programming-Principles.git
 
 # Run any exercise:
 python filename.py
