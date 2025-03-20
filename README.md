@@ -21,7 +21,7 @@ A collection of Python exercises from my Epicode journey!
 ## How to Use 🚀
 
 ```bash
-# Clone this repository (if it ever leaves your machine)
+# Clone this repository
 git clone https://github.com/FrancescoLavelli/Programming-Principles.git
 
 # Run any exercise:

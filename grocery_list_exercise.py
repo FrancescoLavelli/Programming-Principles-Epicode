@@ -7,6 +7,8 @@
 #7 if insert existing article raise error message
 #8 if correct addd article to list
 #9 print new list in alphabetical order
+#3 If item in list ask the user if wants to be removed
+#10 remove it
 """
 
 
@@ -35,10 +37,11 @@ def list_organizer():
         elif new_item.lower() in comparable_list:
             print(
                 # 7
+                # 3
                 f"{new_item} is already in your list. Do you want to remove from the list?: Yes/No ")
             answer = input().lower().strip()
             if answer == "yes":
-                comparable_list.remove(new_item)
+                comparable_list.remove(new_item)  # 10
                 print(comparable_list)
                 continue
         elif new_item.lower() == "q":
