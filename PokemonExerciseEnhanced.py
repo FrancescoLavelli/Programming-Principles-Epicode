@@ -24,39 +24,73 @@ class Pokemon:
             vulnerability: weakness
             for vulnerability, weakness in vulnerability.items()
         }
+        self.damage_history = []
         self.total_damage_taken = 0
 
     def attack(self, opponent, move):
-        # Damage
-        damage = move.power
+
         # Damage Reduction
-        if move.element in self.element_resistance:
-            element_resistance_value = self.element_resistance[move.element]
+        if move.element in opponent.element_resistance:
+            element_resistance_value = opponent.element_resistance[move.element]
         else:
             element_resistance_value = 0
 
-        if move.category in self.category_resistance:
-            category_resistance_value = self.category_resistance[move.category]
+        if move.category in opponent.category_resistance:
+            category_resistance_value = opponent.category_resistance[move.category]
         else:
             category_resistance_value = 0
 
         damage_reduction = element_resistance_value + category_resistance_value
 
-        # Damage Enhancement
-        if opponent.vulnerability != move.element:
-            opponent.total_damage_taken = - damage + damage_reduction
-            health_left = opponent.health + opponent.total_damage_taken
-            print(f"{self.name.capitalize()} is attacking {opponent.name.capitalize()} using: {move.name}, inflicting {move.power} {move.element} Damage")
+        # Total Damage
+        damage = move.power - damage_reduction
+
+        # Dealing Damage
+
+        if move.element in opponent.vulnerability:
+            weakness = opponent.vulnerability[move.element]
+            health_left = opponent.health - \
+                opponent.total_damage_taken - damage - weakness
+
+            if health_left <= 0:
+                print(f"{opponent.name} has been defeted!")
+                opponent.damage_history.clear()
+                opponent.total_damage_taken = 0
+                return
+            else:
+                print(
+                    f"{self.name.capitalize()} is attacking {opponent.name.capitalize()} using: {move.name}")
+                print(
+                    f"{opponent.name.capitalize()} is vulnerable to {move.element}.")
+                print(
+                    f"{self.name.capitalize()} inflicting {(move.power+weakness)} Damage")
 
         else:
-            health_left = opponent.health - damage*2 + damage_reduction
-            print(f"{self.name.capitalize()} is attacking {opponent.name.capitalize()} using: {move.name}, inflicting {move.power*2} {move.element} Damage")
+            health_left = opponent.health - opponent.total_damage_taken - damage
+
+            if health_left <= 0:
+                print(f"{opponent.name} has been defeted!")
+                opponent.damage_history.clear()
+                opponent.total_damage_taken = 0
+                return
+            else:
+                print(f"{self.name.capitalize()} is attacking {opponent.name.capitalize()} using: {move.name}, inflicting {move.power} {move.element} Damage")
+
+        # Damage update
+        opponent.damage_history.append(damage)
+        opponent.total_damage_taken += damage
 
         print(
             f"{opponent.name.capitalize()} absorbs {element_resistance_value} {move.element} damage")
         print(
             f"{opponent.name.capitalize()} absorbs {category_resistance_value} {move.category} damage")
         print(f"{opponent.name.capitalize()} {health_left} Health")
+        print(
+            f"***********************************{opponent.damage_history}")
+        print(
+            f"***********************************{opponent.total_damage_taken}")
+        print(f"@@@@@@@@@@@{damage}")
+        print(f"@@@@@@@{damage_reduction}")
 
 
 """ prova a creare una instance fight cosi magari la health la dentro si modifica senza riazzerarsi
@@ -76,10 +110,10 @@ pikachu = Pokemon(
     },
     category_resistance={
         "Special": 10,
-        "Physical": 0,
+        "Physical": 30,
     },
     vulnerability={
-        "Water": 50,
+        "Water": -50,
     }
 )
 charizard = Pokemon(
@@ -127,17 +161,19 @@ gmax_wildfire = Move("G-MAX Wildfire", "Fire", "G-MAX", 210, 100)
 # to print attributes
 # print(bounce.__dict__)
 # to loop through
-for attr, value in pikachu.__dict__.items():
-    print(f"{attr}: {value}")
+# for attr, value in pikachu.__dict__.items():
+#     print(f"{attr}: {value}")
 # for attr, value in electro_ball.__dict__.items():
 #     print(f"{attr}: {value}")
 
-pikachu.attack(charizard, electro_ball)
+# pikachu.attack(charizard, electro_ball)
+pikachu.attack(charizard, bone_club)
 charizard.attack(pikachu, water_pulse)
-for attr, value in pikachu.__dict__.items():
-    print(f"{attr}: {value}")
 pikachu.attack(charizard, dazzling_gleam)
+charizard.attack(pikachu, salt_cure)
+pikachu.attack(charizard, belch)
 charizard.attack(pikachu, gmax_wildfire)
-
-for attr, value in pikachu.__dict__.items():
-    print(f"{attr}: {value}")
+pikachu.attack(charizard, gmax_volt_tackle)
+charizard.attack(pikachu, close_combat)
+pikachu.attack(charizard, grass_Pledge)
+charizard.attack(pikachu, electro_ball)
