@@ -85,18 +85,17 @@ class Pokemon:
         print(
             f"{opponent.name.capitalize()} absorbs {category_resistance_value} {move.category} damage")
         print(f"{opponent.name.capitalize()} {health_left} Health")
-        print(
-            f"***********************************{opponent.damage_history}")
-        print(
-            f"***********************************{opponent.total_damage_taken}")
-        print(f"@@@@@@@@@@@{damage}")
-        print(f"@@@@@@@{damage_reduction}")
+
+        # Print to check
+        # print(
+        #     f"***********************************{opponent.damage_history}")
+        # print(
+        #     f"***********************************{opponent.total_damage_taken}")
+        # print(f"@@@@@@@@@@@{damage}")
+        # print(f"@@@@@@@{damage_reduction}")
 
 
-""" prova a creare una instance fight cosi magari la health la dentro si modifica senza riazzerarsi
-    in cui magari definisci un parametro fight.healt che va avantifino a che la healt self o dell'opponent e'  == 0
-    prova a fare vulnerabilities & resistance, accuracy, defence
-    capire come si fa a dare un valore a element_resistance e category resistance, se metti i nomi puoi hardcodare un valore fisso ma se tu volessi metterlo in base al pokemon come si fa?
+""" to implement accuracy. how to calculate hit%
 """
 
 # Creating Pokemon

@@ -1,0 +1,390 @@
+import random
+from typing import Dict, Any, Optional
+
+
+class Move:
+    """
+    Represents a Pokemon move with its properties.
+
+    Attributes:
+        name (str): Name of the move
+        element (str): Element type of the move
+        category (str): Category of the move (Special, Physical, etc.)
+        power (int): Base power of the move
+        accuracy (int): Accuracy percentage of the move
+    """
+
+    def __init__(self, name: str, element: str, category: str, power: int, accuracy: int):
+        self.validate_move_parameters(name, element, category, power, accuracy)
+        self.name = name
+        self.element = element
+        self.category = category
+        self.power = power
+        self.accuracy = accuracy
+
+    def validate_move_parameters(self, name: str, element: str, category: str, power: int, accuracy: int):
+        """
+        Validate the parameters of a move.
+
+        Raises:
+            ValueError: If any parameter is invalid
+        """
+        if not name or not isinstance(name, str):
+            raise ValueError("Move name must be a non-empty string")
+        if not element or not isinstance(element, str):
+            raise ValueError("Element must be a non-empty string")
+        if not category or not isinstance(category, str):
+            raise ValueError("Category must be a non-empty string")
+        if not isinstance(power, int) or power < 0:
+            raise ValueError("Power must be a non-negative integer")
+        if not isinstance(accuracy, int) or accuracy < 0 or accuracy > 100:
+            raise ValueError("Accuracy must be an integer between 0 and 100")
+
+
+class Pokemon:
+    """
+    Represents a Pokemon with its attributes and battle capabilities.
+
+    Attributes:
+        name (str): Name of the Pokemon
+        health (int): Total health points
+        element_resistance (Dict[str, int]): Resistances to different element types
+        category_resistance (Dict[str, int]): Resistances to different move categories
+        vulnerability (Dict[str, int]): Vulnerabilities to specific elements
+    """
+    DEFAULT_RESISTANCE = 0
+    DEFAULT_VULNERABILITY = 0
+
+    def __init__(
+        self,
+        name: str,
+        health: int,
+        element_resistance: Optional[Dict[str, int]] = None,
+        category_resistance: Optional[Dict[str, int]] = None,
+        vulnerability: Optional[Dict[str, int]] = None
+    ):
+        self.validate_pokemon_parameters(name, health)
+
+        self.name = name
+        self.health = health
+        self.max_health = health
+
+        # Use default dictionaries if not provided
+        self.element_resistance = element_resistance or {}
+        self.category_resistance = category_resistance or {}
+        self.vulnerability = vulnerability or {}
+
+        # Tracking battle statistics
+        self.damage_history: list[int] = []
+        self.total_damage_taken = 0
+
+    def validate_pokemon_parameters(self, name: str, health: int):
+        """
+        Validate the parameters of a Pokemon.
+
+        Raises:
+            ValueError: If any parameter is invalid
+        """
+        if not name or not isinstance(name, str):
+            raise ValueError("Pokemon name must be a non-empty string")
+        if not isinstance(health, int) or health <= 0:
+            raise ValueError("Health must be a positive integer")
+
+    def calculate_damage_reduction(self, move: Move) -> int:
+        """
+        Calculate damage reduction based on resistances.
+
+        Args:
+            move (Move): The attack move
+
+        Returns:
+            int: Total damage reduction
+        """
+        element_resistance = self.element_resistance.get(
+            move.element, self.DEFAULT_RESISTANCE)
+        category_resistance = self.category_resistance.get(
+            move.category, self.DEFAULT_RESISTANCE)
+        return element_resistance + category_resistance
+
+    def is_attack_successful(self, move: Move) -> bool:
+        """
+        Determine if the attack hits based on move accuracy.
+
+        Args:
+            move (Move): The attack move
+
+        Returns:
+            bool: Whether the attack is successful
+        """
+        return random.randint(1, 100) <= move.accuracy
+
+    def take_damage(self, attacker: 'Pokemon', move: Move) -> bool:
+        """
+        Process damage taken from an attack.
+
+        Args:
+            attacker (Pokemon): The Pokemon attacking
+            move (Move): The attack move
+
+        Returns:
+            bool: Whether the Pokemon is defeated
+        """
+        # Check if attack hits
+        if not self.is_attack_successful(move):
+            print(f"{attacker.name}'s {move.name} missed {self.name}!")
+            return False
+
+        # Calculate damage reduction
+        damage_reduction = self.calculate_damage_reduction(move)
+
+        # Calculate vulnerability
+        vulnerability = self.vulnerability.get(
+            move.element, self.DEFAULT_VULNERABILITY)
+
+        # Calculate total damage
+        damage = max(0, move.power - damage_reduction + vulnerability)
+
+        # Update damage tracking
+        self.damage_history.append(damage)
+        self.total_damage_taken += damage
+
+        # Print battle information
+        self._print_attack_details(
+            attacker, move, damage, damage_reduction, vulnerability)
+
+        # Check if Pokemon is defeated
+        return self.total_damage_taken >= self.health
+
+    def _print_attack_details(self, attacker: 'Pokemon', move: Move, damage: int, damage_reduction: int, vulnerability: int):
+        """
+        Print detailed information about the attack.
+
+        Args:
+            attacker (Pokemon): The Pokemon attacking
+            move (Move): The attack move
+            damage (int): Total damage dealt
+            damage_reduction (int): Damage reduced by resistances
+            vulnerability (int): Additional damage from vulnerabilities
+        """
+        print(f"{attacker.name} attacks {self.name} with {move.name}")
+
+        if vulnerability > 0:
+            print(f"{self.name} is vulnerable to {move.element}!")
+
+        print(f"Damage: {damage}")
+        print(f"{self.name} absorbed {damage_reduction} damage from resistances")
+
+        remaining_health = max(0, self.health - self.total_damage_taken)
+        print(f"{self.name} remaining health: {remaining_health}")
+
+    def reset_battle_stats(self):
+        """
+        Reset battle-related statistics.
+        """
+        self.damage_history.clear()
+        self.total_damage_taken = 0
+
+
+def battle(pokemon1: Pokemon, pokemon2: Pokemon, moves: list[tuple[Pokemon, Move]]):
+    """
+    Simulate a battle between two Pokemon.
+
+    Args:
+        pokemon1 (Pokemon): First Pokemon
+        pokemon2 (Pokemon): Second Pokemon
+        moves (list): List of (Pokemon, Move) tuples representing attacks
+    """
+    for attacker, move in moves:
+        defender = pokemon2 if attacker == pokemon1 else pokemon1
+
+        if defender.take_damage(attacker, move):
+            print(f"{defender.name} has been defeated!")
+            defender.reset_battle_stats()
+            return
+
+
+# Example usage
+pikachu = Pokemon(
+    name="Pikachu",
+    health=330,
+    element_resistance={
+        "Electric": 50,
+        "Fire": 25,
+        "Ground": 0
+    },
+    category_resistance={
+        "Special": 10,
+        "Physical": 30,
+    },
+    vulnerability={
+        "Water": 50,
+    }
+)
+
+charizard = Pokemon(
+    name="Charizard",
+    health=330,
+    element_resistance={
+        "Fire": 50,
+        "Ground": 20
+    },
+    category_resistance={
+        "Special": 10,
+        "Physical": 10,
+    },
+    vulnerability={
+        "Fairy": 20
+    }
+)
+
+# Moves
+electro_ball = Move("Electro Ball", "Electric", "Special", 100, 100)
+water_pulse = Move("Water Pulse", "Water", "Special", 60, 100)
+salt_cure = Move("Salt Cure", "Rock", "Physical", 40, 100)
+grass_Pledge = Move("Grass Pledge", "Grass", "Special", 80, 100)
+belch = Move("Belch", "Poison", "Special", 120, 90)
+bone_club = Move("Bone Club", "Ground", "Physical", 65, 85)
+bounce = Move("Bounce", "Flying", "Special", 85, 85)
+close_combat = Move("Close Combat", "Fighting", "Physical", 120, 100)
+dazzling_gleam = Move("Dazzling Gleam", "Fairy", "Special", 80, 100)
+gmax_volt_tackle = Move("G-Max Volt Tackle", "Electric", "G-MAX", 150, 100)
+gmax_wildfire = Move("G-MAX Wildfire", "Fire", "G-MAX", 210, 100)
+
+# Battle simulation
+battle_moves = [
+    (pikachu, electro_ball),
+    (charizard, water_pulse),
+    (pikachu, dazzling_gleam),
+    (charizard, bounce),
+    (pikachu, belch),
+    (charizard, bone_club),
+    (pikachu, gmax_volt_tackle),
+    (charizard, gmax_wildfire)
+]
+
+battle(pikachu, charizard, battle_moves)
+
+"""
+# Pokemon Battle Simulation: Comprehensive Breakdown
+
+## 1. Object-Oriented Design Overview
+The simulation uses two main classes:
+- `Move`: Represents individual Pokemon moves
+- `Pokemon`: Represents Pokemon characters with complex battle mechanics
+
+## 2. Move Class Detailed Explanation
+
+### 2.1 Class Purpose
+The `Move` class encapsulates the properties of a Pokemon attack:
+- Name of the move
+- Elemental type
+- Category (Special/Physical)
+- Power (damage potential)
+- Accuracy (chance to hit)
+
+### 2.2 Constructor Validation
+```python
+def validate_move_parameters(self, name: str, element: str, category: str, power: int, accuracy: int):
+```
+This method ensures:
+- `name` is a non-empty string
+- `element` is a valid type
+- `category` is a valid move category
+- `power` is a non-negative integer
+- `accuracy` is between 0-100
+
+### 2.3 Validation Example
+```python
+# Valid move
+water_pulse = Move("Water Pulse", "Water", "Special", 60, 100)
+
+# These would raise ValueError
+# Move("", "Water", "Special", 60, 100)  # Empty name
+# Move("Water Pulse", "Water", "Special", -10, 100)  # Negative power
+```
+
+## 3. Pokemon Class: Complex Battle Mechanics
+
+### 3.1 Constructor Parameters
+```python
+def __init__(
+    self, 
+    name: str, 
+    health: int, 
+    element_resistance: Optional[Dict[str, int]] = None, 
+    category_resistance: Optional[Dict[str, int]] = None, 
+    vulnerability: Optional[Dict[str, int]] = None
+):
+```
+- `name`: Pokemon's name
+- `health`: Total hit points
+- `element_resistance`: Resistance to different element types
+- `category_resistance`: Resistance to move categories
+- `vulnerability`: Weakness to specific elements
+
+### 3.2 Damage Calculation Method
+```python
+def calculate_damage_reduction(self, move: Move) -> int:
+```
+- Checks element-specific and category-specific resistances
+- Calculates total damage reduction
+- Uses default 0 if no specific resistance exists
+
+### 3.3 Attack Success Mechanism
+```python
+def is_attack_successful(self, move: Move) -> bool:
+```
+- Uses random number generation
+- Determines if move hits based on accuracy
+- 85% accuracy move might miss sometimes
+
+### 3.4 Damage Processing
+```python
+def take_damage(self, attacker: 'Pokemon', move: Move) -> bool:
+```
+Complete damage calculation process:
+1. Check if attack hits
+2. Calculate damage reduction
+3. Apply elemental vulnerabilities
+4. Track damage history
+5. Determine if Pokemon is defeated
+
+## 4. Battle Simulation Function
+
+### 4.1 Battle Flow
+```python
+def battle(pokemon1: Pokemon, pokemon2: Pokemon, moves: list[tuple[Pokemon, Move]]):
+```
+- Manages turn-based battle
+- Alternates attacks between Pokemon
+- Checks for defeat after each attack
+
+## 5. Key Design Principles
+
+### 5.1 Type Hinting
+- Provides clear type information
+- Helps with code readability
+- Enables better IDE support and potential type checking
+
+### 5.2 Error Handling
+- Validates input parameters
+- Prevents invalid game states
+- Provides clear error messages
+
+### 5.3 Flexibility
+- Allows custom resistances
+- Supports different move types
+- Easy to extend with new features
+
+## 6. Potential Improvements
+- Add critical hit mechanics
+- Implement more complex status effects
+- Create a full battle system with multiple turns
+- Add Pokemon type effectiveness chart
+
+## 7. Learning Objectives
+- Object-Oriented Programming
+- Complex state management
+- Randomization in game mechanics
+- Defensive programming techniques
+"""
