@@ -1,5 +1,6 @@
 class Car:
-    wheels = 4  # class attribute = for everyone
+    # class attribute = for everyone - shared by all cars
+    wheels = 4
     total_built_car = 0
     __total_driven_km = 0
 
@@ -20,6 +21,9 @@ class Car:
     def __str__(self):
         return f"I am an amazing {self.brand} from {self.year}"
 
+    def get_total_driven_km(self):
+        return Car.__total_driven_km
+
 
 car1 = Car("Fiat", 200.0, 2020, True, 1500)
 car2 = Car("Ferrari", 300.0, 2010, False, 1300)
@@ -37,7 +41,7 @@ car1.total_driven_km = 0
 
 print(Car.total_driven_km)
 
-""" *********INTROSPECTION********* """
+"""*********INTROSPECTION********* """
 # THIS METHOD ALLOW US TO INSPECT THE OBJECT DURING RUNTIME
 print(type(car1))
 print(dir(car1))
@@ -52,7 +56,7 @@ print(car1.__dict__)
 print(car1.__module__)
 print(car1.__str__())
 
-""" *********REFLECTION*********"""
+"""*********REFLECTION*********"""
 # reflection allow us to analyse and modify the objects "dinamically during runtime"
 new_attr = input("How do you want to call the new attribute?")
 setattr(car1, new_attr, 1500)
@@ -67,8 +71,22 @@ print(car1.brand)
 # is giving back the value of the attribute we want to check
 getattr(car1, "brand")
 
+"""*********ENCAPSULATION*********"""
 # attribute protection: I need to make it private, to do so I need to name it with __ DOUBLE UNDERSCORE Dunder method
 # this way the methods cannot be called from outside the class
 
 # I am creating a new instance attribute which will have the given value but It wont override the private class one (with the same name)
 car1.__total_driven_km = 0
+# because the attribute is private so I cannot read it, I need to create a method in the class "get_total_driven_km" to return the value
+
+print(car1.get_total_driven_km)
+
+# does exist a "protected" attribute which i define with _ single underscore. But I can modify from the outside. The _ is only a guideline
+
+"""Name Mangling"""
+# with this syntax I can modify private attributes from the outside
+# I just need to insert _Classname before __private_method
+
+# I will update the private internal Class value for some reason. Maybe debugging reasons
+car1._Car__total_driven_km = 0
+print(car1._Car__total_driven_km)
