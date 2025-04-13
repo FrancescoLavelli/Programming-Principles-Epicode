@@ -17,7 +17,7 @@ class PayPalPayment:
 
 
 cc_service = CreditCardPayment()
-paypal_service = PayPalPayment
+paypal_service = PayPalPayment()
 
 payment = Payment(cc_service)
 payment.process()

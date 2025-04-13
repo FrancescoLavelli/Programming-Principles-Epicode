@@ -65,7 +65,7 @@ print(isinstance(paypal_payment, CreditCardPayment))
 
 """Override
 means that in a subclass I define a method with the same name of another method who is present in the superclass. 
-If I do the interpeter will adopt the one of the subclass. Who has the priority. The interpeter control the methods from the subclass to the class. I can just use the super().method() again to override the one of the mainClass and call it """
+If I do the interpeter will adopt the one of the subclass. Who has the priority. The interpeter control the methods from the subclass to the class. I can just use the super().method()  super().process_payment()again to override the one of the mainClass and call it """
 
 """Multi-Level Inheritance
 you can nest super() in various classes to call methods in the upper classes set as parameters: class PrimePayPalPayment(PayPalPayment)

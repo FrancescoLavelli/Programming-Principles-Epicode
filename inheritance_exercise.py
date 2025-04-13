@@ -67,6 +67,6 @@ print(Movie_Director.__str__)
 print(woody_allen.__str__)
 print(woody_director.__str__)
 
-
+# Exercise Part 2
 woody_allen.introduce_yourself()
 woody_director.introduce_yourself()
